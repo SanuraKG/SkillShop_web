@@ -93,16 +93,40 @@ if ($loggedIn && $userRole == "buyer") {
                     </div>
 
                     <!-- Messages -->
+
+                    <?php
+                    $msgCount = 0;
+                    if ($loggedIn) {
+                        $mcQ = Database::search(
+                            "SELECT COUNT(*) AS `c` FROM `chat` WHERE `to_user_id`=? AND `status`='unseen' ",
+                            "i",
+                            [$userId]
+                        );
+                        $msgCount = $mcQ ? $mcQ->fetch_assoc()["c"] : 0;
+                    }
+
+
+                    ?>
                     <a href="<?php echo $userRole == "buyer" ?
                                     "buyer-dashboard.php?tab=messages" :
                                     "seller-dashboard.php?tab=messages"; ?>"
                         class="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors 
                     duration-200 hidden sm:block">
-                        ✉️<span class="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full animated-pulse"></span>
+                        ✉️
+                        <?php if ($msgCount > 0): ?>
+
+                            <span id="msg-count" class="absolute top-1 right-1 text-[10px] bg-blue-600 text-white w-4 h-4 rounded-full 
+                            flex items-center justify-center font-bold"><?= $msgCount; ?></span>
+                        <?php else: ?>
+
+                            <span id="msg-count" class="absolute top-1 right-1 text-[10px] bg-blue-600 text-white w-4 h-4 rounded-full 
+                            flex items-center justify-center font-bold hidden">0</span>
+                        <?php endif; ?>
                     </a>
 
                     <!-- Cart/watchlist for Buyers -->
                     <?php if ($userRole == "buyer"): ?>
+
                         <a href="buyer-dashboard.php?tab=cart" class="relative p-2 text-gray-600
                     hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200
                     hidden sm:block">
@@ -115,9 +139,12 @@ if ($loggedIn && $userRole == "buyer") {
                     w-5 h-5 rounded-full flex items-center justify-center font-bold text-xs">0</span>
                             <?php endif; ?>
                         </a>
+
                         <a href="watchlist.php" class="p-2 text-gray-600
                 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors
                 duration-200 hidden sm:block" title="watchlist">❤️</a>
+
+
                     <?php endif; ?>
 
                     <!-- Profile DropDown -->
@@ -144,6 +171,8 @@ if ($loggedIn && $userRole == "buyer") {
                                     class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50
                                 hover:text-blue-600 transition-colors duration-150">📊 Dashboard</a>
                                 <?php if ($userRole == "buyer"): ?>
+                                    <a href="buyer-dashboard.php?tab=pruchase-history" class="block px-4 py-2.5
+                                      text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-150" title="Purchase-History"> 📜 Purchase History</a>
                                     <a href="watchlist.php" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50
                                 hover:text-blue-600 transition-colors duration-150">❤️ Watchlist</a>
                                 <?php endif; ?>
@@ -207,5 +236,33 @@ if ($loggedIn && $userRole == "buyer") {
                     profileDropDown.classList.add('invisible');
                 });
             });
+        }
+
+
+        //Live message Count Update
+
+        if (<?= $loggedIn ? 'true' : 'false'; ?>) {
+            setInterval(async () => {
+
+                try {
+
+                    const res = await fetch("Process/getUnseenMessageCount.php");
+                    const data = await res.json();
+                    const mc = document.getElementById("mgs-count");
+
+                    if (mc) {
+                        mc.innerText = data.count;
+                        if (data.count > 0) {
+                            mc.classList.remove("hidden");
+                            mc.classList.add("flex");
+                        } else {
+                            mc.classList.remove("flex");
+                            mc.classList.add("hidden");
+                        }
+                    }
+
+                } catch (e) {}
+
+            }, 5000);
         }
     </script>

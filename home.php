@@ -58,7 +58,7 @@ if ($testimonialResult && $testimonialResult->num_rows > 0) {
 $usersResult = Database::search("SELECT COUNT(DISTINCT `id`) AS `total_users` FROM `user`;");
 $productsCountResult = Database::search("SELECT COUNT(`id`) AS `total_products` FROM `product`;");
 $feedbackStatusResult = Database::search("SELECT AVG(`rating`) AS `avg_rating` FROM `feedback`;");
-$ordersStatusResult = Database::search("SELECT COUNT(`id`) AS `total_orders`,SUM(`total_amount`) AS `total_revenue` FROM
+$ordersStatusResult = Database::search("SELECT COUNT(`order_id`) AS `total_orders`,SUM(`total_amount`) AS `total_revenue` FROM
 `order`;");
 
 $totalUsers = ($usersResult && $row = $usersResult->fetch_assoc()) ? $row["total_users"] : 0;

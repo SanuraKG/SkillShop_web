@@ -90,7 +90,7 @@ while ($row = $relQ->fetch_assoc()) $related[] = $row;
 // Check if user already purchased this product
 $bought = false;
 if ($loggedIn && $userId) {
-    $bq    = Database::search("SELECT `id` FROM `order` WHERE `product_id`=? AND `user_id`=? LIMIT 1", "ii", [$productId, $userId]);
+    $bq    = Database::search("SELECT `order_id` FROM `order` WHERE `product_id`=? AND `user_id`=? LIMIT 1", "ii", [$productId, $userId]);
     $bought = $bq && $bq->num_rows > 0;
 }
 
@@ -104,7 +104,7 @@ if ($loggedIn && $userId) {
 // Check if product is in cart
 $inCart = false;
 if ($loggedIn && $userId) {
-    $cq     = Database::search("SELECT `id` FROM `cart` WHERE `product_id`=? AND `user_id`=? LIMIT 1", "ii", [$productId, $userId]); 
+    $cq     = Database::search("SELECT `id` FROM `cart` WHERE `product_id`=? AND `user_id`=? LIMIT 1", "ii", [$productId, $userId]);
     $inCart = $cq && $cq->num_rows > 0;
 }
 
@@ -288,16 +288,16 @@ require "header.php";
 
                             <?php elseif ($loggedIn && $userRole == "buyer"): ?>
                                 <!-- Logged in buyer, not enrolled yet -->
-                                <a href="#" class="block w-full py-3.5 text-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all active:scale-95 shadow-md mb-3">
+                                <a href="Process/checkout.php?id=<?= $p["id"]; ?>" class="block w-full py-3.5 text-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all active:scale-95 shadow-md mb-3">
                                     🎓 Enroll Now</a>
                                 <div class="flex gap-2 mb-4">
                                     <button id="cart-btn" class="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 
                                     rounded-xl border-2 font-semibold text-sm transition-all border-slate-200 text-slate-600 
                                     hover:border-blue-400 hover:text-blue-600" data-product-id="<?= $productId; ?>"
                                         data-in="<?= $inCart ? 1 : 0; ?>">🛒 <span id="cart-text"><?= $inCart ? "In Cart" : "Add to Cart"; ?></span></button>
-                                 
-                                 
-                                        <button id="wl-btn" class="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 font-semibold text-sm transition-all border-slate-200 
+
+
+                                    <button id="wl-btn" class="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 font-semibold text-sm transition-all border-slate-200 
                                     text-slate-600 hover:border-rose-400 hover:text-rose-500" data-product-id="<?= $productId; ?>"
                                         data-in="<?= $inWatchlist ? 1 : 0; ?>"><?= $inWatchlist ? "♥︎" : "♡"; ?><span id="wl-text">
                                             <?= $inWatchlist ? "In Watchlist" : "Watchlist"; ?></span></button>
@@ -370,7 +370,9 @@ require "header.php";
 
                         <!-- Message button only visible to buyers -->
                         <?php if ($loggedIn && $userRole == "buyer"): ?>
-                            <a href="buyer-dashboard.php?tab=message" class="block w-full py-2.5 text-center border-2 border-slate-200 text-gray-600 hover:border-blue-400 hover:text-blue-600 font-semibold rounded-xl transition-all text-sm">
+                            <a href="buyer-dashboard.php?tab=messages&other_id=<?= $p["sid"] ?>&other_name=<?= urlencode($sellerName); ?>"
+                                class="block w-full py-2.5 text-center border-2 border-slate-200 text-gray-600 
+                            hover:border-blue-400 hover:text-blue-600 font-semibold rounded-xl transition-all text-sm">
                                 ✉️ Message Instructor
                             </a>
                         <?php endif; ?>
