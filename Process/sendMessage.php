@@ -13,6 +13,8 @@ $from_id = $_SESSION["user_id"];
 $to_id = isset($_POST["to_id"]) ? intval($_POST["to_id"]) : 0;
 $content = isset($_POST["content"]) ? trim($_POST["content"]) : "";
 
+
+//if id is 0 or empty content
 if ($to_id <= 0 || empty($content)) {
     echo json_encode(["success" => false, "message" => "Invalid message data"]);
     exit();

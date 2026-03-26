@@ -39,6 +39,7 @@ if ($res) {
                  ORDER BY created_at DESC LIMIT 1",
                  "iiii", [$userId, $otherId, $otherId, $userId]
             );
+            //Check the lstMsg query even work
             $lastMsg = ($lastMsgQ && $lastMsgQ->num_rows > 0) ? $lastMsgQ->fetch_assoc() : ["content" => "", "created_at" => ""];
             
             // Get unread count
