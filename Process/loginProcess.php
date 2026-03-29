@@ -16,13 +16,17 @@ if (empty($email)) {
 } else {
 
     $result = Database::search(
-        "SELECT `id` , `fname` , `lname` , `email` , `password_hash` , `active_account_type_id` FROM `user` WHERE `email` =?",
+        "SELECT `id` , `fname` , `lname` , `email` , `password_hash` , `active_account_type_id`, `status` FROM `user` WHERE `email` =?",
         "s",
         [$email]
     );
 
     if ($result && $result->num_rows > 0) {
         $user = $result->fetch_assoc();
+
+        if($user["status"] == "blocked"){
+            echo "Your account has been blocked. Please contact support";
+        }
 
         if (password_verify($password, $user["password_hash"])) {
 

@@ -929,7 +929,7 @@ ${chat.last_message || 'Start -chattng...'}</p>
                                 const newStatus = data.newStatus;
 
 
-                                if (newStatus == "inactive") {
+                                if (newStatus == "blocked") {
                                     button.classList.remove("bg-red-100", "text-red-800", "border-red-300");
                                     button.classList.add("bg-green-100", "text-green-800", "border-green-300");
                                     button.textContent = "Activate";
@@ -948,7 +948,7 @@ ${chat.last_message || 'Start -chattng...'}</p>
                                         statusBadge.textContent = "Active";
                                     } else {
                                         statusBadge.classList.add("bg-red-100", "text-red-800");
-                                        statusBadge.textContent = "Inactive";
+                                        statusBadge.textContent = "blocked";
                                     }
                                 }
 
@@ -1005,7 +1005,7 @@ ${chat.last_message || 'Start -chattng...'}</p>
                     const newStatus = data.newStatus;
 
 
-                    if (newStatus == "inactive") {
+                    if (newStatus == "blocked") {
                         button.classList.remove("bg-red-100", "text-red-800", "border-red-300");
                         button.classList.add("bg-green-100", "text-green-800", "border-green-300");
                         button.textContent = "Activate";
@@ -1024,7 +1024,7 @@ ${chat.last_message || 'Start -chattng...'}</p>
                             statusBadge.textContent = "Active";
                         } else {
                             statusBadge.classList.add("bg-red-100", "text-red-800");
-                            statusBadge.textContent = "Inactive";
+                            statusBadge.textContent = "blocked";
                         }
                     }
 

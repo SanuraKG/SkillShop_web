@@ -1,4 +1,10 @@
 <?php
+session_start();
+if (isset($_SESSION["logged_in"]) && $_SESSION["logged_in"] == true) {
+    header("Location: home.php");
+    exit();
+}
+
 
 
 $email = isset($_COOKIE["skillshop_user_email"]) ? $_COOKIE["skillshop_user_email"] : "";
