@@ -6,5 +6,5 @@ unset($_SESSION["admin_fname"]);
 unset($_SESSION["admin_lname"]);
 
 
-header("Location: ../admin-login.php");
+header("Location: ../adminLogin.php");
 exit();

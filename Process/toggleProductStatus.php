@@ -2,7 +2,7 @@
 session_start();
 
 
-require_once "db/connection.php";
+require_once "../db/connection.php";
 header('Content-Type: application/json');
 
 if (!isset($_SESSION["admin_logged_in"])) {
@@ -13,7 +13,7 @@ if (!isset($_SESSION["admin_logged_in"])) {
 $id = isset($_POST["id"]) ? $_POST["id"] : "";
 
 if (empty($id)) {
-    echo json_encode(["success" => false, "message" => "User ID is required"]);
+    echo json_encode(["success" => false, "message" => "Product ID is required"]);
     exit();
 }
 
@@ -28,5 +28,5 @@ if ($res && $res->num_rows > 0) {
 
     echo json_encode(["success" => true, "newStatus" => $newStatus]);
 } else {
-    echo json_encode(["success" => false, "message" => "user not found!"]);
+    echo json_encode(["success" => false, "message" => "product not found!"]);
 }

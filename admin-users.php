@@ -99,7 +99,7 @@ $users = Database::search($query);
                             <?php while ($user = $users->fetch_assoc()): ?>
                                 <tr class="hover:bg-slate-50/50 transition-colors user-row">
                                     <td class="px-8 py-5">
-                                        <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justfiy-center
+                                        <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center
 font-bold text-slate-400">
                                             <?= substr($user["fname"], 0, 1) ?>
                                         </div>
@@ -124,7 +124,8 @@ font-bold text-slate-400">
                                         <?= date("M j, Y", strtotime($user["created_at"])); ?>
                                     </td>
                                     <td class="px-8 py-5">
-                                        <span class="px-3 py-1 tex6t-[10px] font-bold rounded-full uppercase <?= ($user["status"] == "active") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"; ?>">
+                                        <span id="status-<?= $user['id']; ?>" class="px-3 py-1 text-[10px] font-bold rounded-full uppercase 
+                                        <?= ($user["status"] == "active") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"; ?>">
                                             <?= $user["status"]; ?>
                                         </span>
                                     </td>

@@ -87,8 +87,8 @@ $products = Database::search($query);
                     <?php while ($prod = $products->fetch_assoc()): ?>
                         <div class="product-item bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col
                                    lg:flex-row gap-6 items-center transition-all hover:shadow-md">
-                            <img src="<?= $prod["image_url"] ?>" class="w-24 h-24 rounded-xl object-cover bg-slate-100
-                                  flex-shrink-0" />
+                            <img src="<?= $prod["image_url"] ?>" class="w-24 h-24 rounded-xl object-cover bg-slate-100  
+                                  flex-shrink-0" onclick="viewProduct(<?= $prod['id']; ?>)" />
                             <div class="flex-1">
                                 <div class="flex items-center gap-3 mb-1">
                                     <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[9px] font-black uppercase
@@ -97,7 +97,7 @@ $products = Database::search($query);
                                         <?= $prod["status"]; ?>
                                     </span>
                                 </div>
-                                <h3 class="text-lg font-bold text-slate-900 prod-title"><?= $prod["title"]; ?></h3>
+                                <h3 class="text-lg font-bold text-slate-900 prod-title cursor-pointer" onclick="viewProduct(<?= $prod['id']; ?>);"><?= $prod["title"]; ?></h3>
                                 <p class="text-xs text-slate-900 prod-seller">By<?= $prod["fname"] . " " . $prod["lname"]; ?></p>
                             </div>
 
@@ -107,6 +107,7 @@ $products = Database::search($query);
                                 <p class="text-xl font-black text-slate-900 ">Rs. <?= number_format($prod["price"], 2) ?></p>
                             </div>
                             <div class="flex items-center gap-3 flex-shrink-0">
+                                <button onclick="viewProduct(<?= $prod['id']; ?>)" class="px-6 py-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 transition-all ">View Details</button>
                                 <button onclick="toggleProductStatus(<?= $prod['id']; ?>); " id="btn-<?= $prod['id']; ?>"
                                     class="px-6 py-2.5 rounded-xl text-xs font-bold transition-all <?= ($prod["status"] ==  "active") ? "bg-red-50 text-red-500 hover:bg-red-600 hover:text-white"
                                                                                                         : "bg-green-600 text-white hover:bg-green-700"; ?>">
@@ -125,7 +126,116 @@ $products = Database::search($query);
 
     </div>
 
+    <!-- Prouduct View Model  -->
+    <div id="productModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeProductModal();"></div>
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden w-full max-w-2xl relative z-10 animate-in fade-in zoom-in duration-300">
+                <button onclick="closeProductModal();" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">X</button>
+                <div id="productModalContent" class="p-8">
+                    <!-- Loading State  -->
+                    <div class="flex justify-center py-20">
+                        <div class="animate-spin rounded-full j-12 w-12 border-blue-500 border-t-transparent">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
     <script>
+        function closeProductModal() {
+            document.getElementById("productModal").classList.add("hidden");
+        }
+
+
+
+        async function viewProduct(id) {
+            const modal = document.getElementById("productModal");
+            const content = document.getElementById("productModalContent");
+            modal.classList.remove("hidden");
+
+
+            content.innerHTML = '<div class = "flex justify-center py-20" ><div class ="animate-spin rounded-full j-12 w-12 border-blue-500 border-t-transparent" >< /div> </div>';
+
+            try {
+
+                const res = await fetch(`Process/admin/getProductDetails.php?id=$(id)`);
+                const data = await res.json();
+
+                if (data.success) {
+
+                    const p = data.product; 
+
+                    content.innerHTML = `
+            
+             <div class="flex flex-col md:flex-row gap-8">
+        <div class="w-full md:w-1/3">
+            <img src="${p.image_url}" class="w-full aspect-square rounded-2xl object-cover shadow-lg bg-slate-50" />
+            <div class="mt-4 p-4 bg-slate-50 rounded-2xl">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Status</p>
+                <span class="px-3 py-1 text-[10px] font-bold rounded-fill uppercase ${p.status =='active' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}">${p.status}</span>
+
+            </div>
+        </div>
+        <div class="flex-1">
+    <span class="px-2 py-0.5 bg-blue-50  text-blue-600 text-[10px] font-black uppercase rounded-md mb-2 inline-block">${p.category_name}</span>
+    <h3 class="text-2xl font-black text-slate-900 leading-tight mb-2">${p.title}</h3>
+    <div class="flex items-center gap-2 mb-6">
+        <div class="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center font-bold text-slate-400 text-xs">
+            ${p.fname[0]}
+        </div>
+        <div class="">
+            <p class="text-xs font-bold text-slate-900">By ${p.fname} ${p.lname}</p>
+            <p class="text-[10px] text-slate-400">${p.seller_email}</p>
+        </div>
+    </div>
+    <div class="space-y-4">
+        <div class="">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Description</p>
+            <p class="text-sm text-slate-600 leading-relaxed">${p.description}</p>
+        </div>
+        <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+            <div class="">
+                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">price</p>
+                <p class="text-lg font-black text-slate-600 ">Rs . ${parseFloat(p.price).toLocaleString()}</p>
+            </div>
+                 <div class="">
+                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Levels</p>
+                <p class="text-lg font-black text-slate-900 leading-relaxed">${p.level}</p>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+    </div>
+
+            
+            
+            `
+
+                } else {
+                    content.innerHTML = `<p class="text-center text-red-500 font-bold py-10">${data.message}</p>`;
+                }
+
+            } catch (err) {
+                alert("View Product Function:" + err);
+            }
+
+
+        }
+
+
+
+
+
+
         function filterProducts() {
             const filter = document.getElementById('prodSearch').value.toLowerCase();
             const items = document.querySelectorAll('.product-item');
