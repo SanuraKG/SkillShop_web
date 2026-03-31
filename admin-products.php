@@ -66,7 +66,7 @@ $products = Database::search($query);
                     </div>
                 </div>
                 <a href="Process/adminLogoutProcess.php" class="block w-full text-center py-2 bg-slate-800 hover:bg-red-900/40
-                hover:text-red-400 rounded-lg text-xs font-bold transition-all border border-slate-70">Logout</a>
+                hover:text-red-400 rounded-lg text-xs font-bold transition-all border border-slate-700">Logout</a>
             </div>
         </aside>
 
@@ -77,8 +77,12 @@ $products = Database::search($query);
             <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-30">
                 <h2 class="text-xl font-extrabold text-slate-900">Manage Products</h2>
                 <div class="flex items-center gap-4">
+                    <button onclick="openCategoryModal();" class="px-4 py-2 bg-slate-900 text-white text-sm font-bold rounded-xl
+                    hover:bg-black transition-all">
+                        + Register Category
+                    </button>
                     <input type="text" id="prodSearch" onkeyup="filterProducts();" placeholder="Search Products..."
-                        class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus-ring-4
+                        class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-4
               focus:ring-blue-500/10 outline-none" />
                 </div>
             </header>
@@ -135,7 +139,7 @@ $products = Database::search($query);
                 <div id="productModalContent" class="p-8">
                     <!-- Loading State  -->
                     <div class="flex justify-center py-20">
-                        <div class="animate-spin rounded-full j-12 w-12 border-blue-500 border-t-transparent">
+                        <div class="animate-spin rounded-full h-12 w-12 border-blue-500 border-t-transparent">
 
                         </div>
                     </div>
@@ -145,9 +149,121 @@ $products = Database::search($query);
     </div>
 
 
+    <!-- Category Modal  -->
+    <div id="categoryModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeCategoryModal();"></div>
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden w-full max-w-2xl relative z-10 animate-in fade-in zoom-in duration-300">
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-slate-900">Manage Categories</h3>
+                        <button onclick="closeCategoryModal();" class="text-slate-400 hover:text-slate-600 transition-colors">X</button>
+                    </div>
+
+
+
+                    <!-- Category Registration Form  -->
+                    <div class="bg-slate-50 p-6 rounded-2xl mb-8">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Add New Category</h4>
+                        <div class="flex gap-2">
+                            <input type="text" id="catName" placeholder="e.g : Music Production" class="flex-1 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm
+                        focus:ring-4 focus:ring-blue-500/10 outline-none" />
+                            <button onclick="registerCategory();" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl
+                        text-sm font-bold hover:bg-blue-700 transition-all shadow-lg active:scale-95">Add</button>
+                        </div>
+                        <p id="catMsg" class="hidden mt-3 text-xs font-medium text-center"></p>
+                    </div>
+
+                    <!-- Category List  -->
+                    <h4 class="text-xs font-bold text-slate uppercase tracking-widest mb-4">Existing Categories</h4>
+                    <div id="categoryList" class="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- Loaded With AJAX  -->
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 
 
     <script>
+        function openCategoryModal() {
+            document.getElementById("categoryModal").classList.remove("hidden");
+        }
+
+
+        async function loadCatgories() {
+            const list = document.getElementById("categoryList");
+            list.innerHTML = '    <div class="py-4 text-center text-slate-400 text-xs italic">Loading...</div>  ';
+
+            try {
+                const res = await fetch(`Process/admin/getCategories.php`);
+                const data = await res.json();
+
+                if (data.success) {
+                    list.innerHTML = data.categories.map(c => `
+                    
+                    
+                    <div class="flex justify-between items-center p-3.5 bg-white border border-slate-100 rounded-xl hover:border-blue-200 transition-all group">
+    <span class="text-sm font-semibold text-slate-700">${c.name}</span>
+    <span class="text-[10px] font-bold text-slate-300 group-hover:text-blue-400 uppercase">#${c.id}</span>
+</div>
+
+                    
+                    
+                    
+                    `).join('');
+                }
+
+
+            } catch (err) {
+                alert(err);
+            }
+        }
+
+
+        async function registerCategory() {
+            const nameInput = document.getElementById("catName");
+            const msg = document.getElementById("catMsg");
+            const name = nameInput.value.trim();
+
+            if (!name) return;
+
+            const fd = new FormData();
+            fd.append("name", name);
+
+            try {
+
+                const res = await fetch(`Process/admin/registerCategory.php`, {
+                    method: "POST",
+                    body: fd
+                });
+                const data = await res.json();
+
+                msg.classList.remove('hidden');
+                msg.innerText = data.message;
+                msg.className = data.success ? 'mt-3 text-xs font-medium text-center text-green-600' : 'mt-3 text-xs font-medium text-center text-red-600';
+
+                if (data.success) {
+                    nameInput.value = "";
+                    loadCatgories();
+                    setTimeout(() => {
+                        msg.classList.add("hidden");
+                    }, 3000);
+                }
+
+            } catch (err) {
+                alert("Register Category function: " + err);
+            }
+        }
+
+        function closeCategoryModal() {
+            document.getElementById("categoryModal").classList.add("hidden");
+        }
+
         function closeProductModal() {
             document.getElementById("productModal").classList.add("hidden");
         }
@@ -164,12 +280,12 @@ $products = Database::search($query);
 
             try {
 
-                const res = await fetch(`Process/admin/getProductDetails.php?id=$(id)`);
+                const res = await fetch(`Process/admin/getProductDetails.php?id=${id}`);
                 const data = await res.json();
 
                 if (data.success) {
 
-                    const p = data.product; 
+                    const p = data.product;
 
                     content.innerHTML = `
             
@@ -178,7 +294,7 @@ $products = Database::search($query);
             <img src="${p.image_url}" class="w-full aspect-square rounded-2xl object-cover shadow-lg bg-slate-50" />
             <div class="mt-4 p-4 bg-slate-50 rounded-2xl">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Status</p>
-                <span class="px-3 py-1 text-[10px] font-bold rounded-fill uppercase ${p.status =='active' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}">${p.status}</span>
+                <span class="px-3 py-1 text-[10px] font-bold rounded-full uppercase ${p.status =='active' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}">${p.status}</span>
 
             </div>
         </div>
@@ -260,7 +376,7 @@ $products = Database::search($query);
             fd.append('id', prodId);
 
             try {
-                const res = await fetch('process/toggleProductStatus.php', {
+                const res = await fetch('Process/toggleProductStatus.php', {
                     method: 'POST',
                     body: fd
                 });

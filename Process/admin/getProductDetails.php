@@ -10,7 +10,7 @@ if (!isset($_SESSION["admin_logged_in"])) {
     exit();
 }
 
-$id = isset($_POST["id"]) ? $_POST["id"] : "";
+$id = isset($_GET["id"]) ? $_GET["id"] : "";
 
 if (empty($id)) {
     echo json_encode(["success" => false, "message" => "Product ID is required"]);
